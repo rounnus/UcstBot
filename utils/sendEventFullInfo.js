@@ -9,6 +9,11 @@ const toemojis = require(`./toEmojis.js`)
 function sendFullInfo(bot,arg,user){
 
     let ctfmap = ctf.getUpcommingCTF();
+    let isOnline = ctf.isSiteOnline();
+    if(!isOnline){
+        return;
+        console.log("Site is Down")
+    }
 
     arg = 4-arg
     var newDate = new Date();
@@ -19,7 +24,7 @@ function sendFullInfo(bot,arg,user){
         .setThumbnail(`${ctfmap[`logo_${arg}`] ? ctfmap[`logo_${arg}`] : botconfig.error }`)
         .setFooter(`Last Update: ${newDate.getHours()}:${newDate.getMinutes()}:${newDate.getUTCSeconds()}`)
         try{ 
-             user.send(ctfinfo)
+          user.send(ctfinfo)
         }catch(e){
 
         }

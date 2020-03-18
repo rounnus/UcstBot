@@ -5,11 +5,11 @@
 const request=require("xmlhttprequest");
 const cheerio=require('cheerio');
 const nowTimeStamp=Date.now();
-
 module.exports.getUpcommingCTF=getUpcommingCTF;
+module.exports.isSiteOnline=isSiteOnline;
+module.exports.GetLatestCTF=GetLatestEvent;
 
-function httpGet(URL)
-{
+function httpGet(URL){
 	/*
 		This function makes a get
 		request to a specific	
@@ -22,10 +22,10 @@ function httpGet(URL)
     	return xmlHttp.responseText; // return the content of the API
     }
     catch(e){
-		return false;
+		  return false;
 	}
 }
-function informationsAboutCTF(ctfInfos,json,infoToShow,expectetion=false){
+function informationsAboutCTF(ctfInfos,json,infoToShow,exception=false){
 	/*
 		This function get's
 		1) One list that includes the information we want from the API
@@ -42,7 +42,7 @@ function informationsAboutCTF(ctfInfos,json,infoToShow,expectetion=false){
 			// Getting one by one all the informations
 			for (let info=0;info<informationCTFList.length;info++){
 				// We add  all the informations about the CTF's to map variable
-				if (expectetion==false){
+				if (exception==false){
 					informationMap[`${informationCTFList[info]}_${specificCTF}`]=jsonFormat[specificCTF][informationCTFList[info]];
 				}
 				else {
@@ -55,7 +55,7 @@ function informationsAboutCTF(ctfInfos,json,infoToShow,expectetion=false){
 function getUpcommingCTF(){
 	/* 
 		This function returns
-		the informations about	
+		informations about	
 		the upcoming CTFs events.
 		The information is given by the API: https://ctftime.org/api/
 	*/
@@ -64,7 +64,7 @@ function getUpcommingCTF(){
 	let jsonFormat=JSON.parse((getUpcomming.replace(/<b[^>]*>/g,'')).replace(/<i[^>]*>/g, '__')); // make the json.	
 	let eventsToShow=5; // how many events to show
 	let upcommingMap=informationsAboutCTF(upcommingCTFinfo,jsonFormat,eventsToShow); // call the function to get the informations about CTF events
-	console.log(upcommingMap);
+	//console.log(upcommingMap);
 	return upcommingMap;
 }
 function topCTFTeams(year){
@@ -128,7 +128,7 @@ function getCTFTeamById(id){
 		specificTeamMap['rating_points_0']=getRating[ratingObjectKeys].rating_points; // getting the rating points of the CTF team
 		specificTeamMap['rating_place_0']=getRating[ratingObjectKeys].rating_place; // getting the rating place of the CTF team
 		specificTeamMap['image_path_0']=GettingCTFTeamIcon(id); // getting the image of the team.
-		console.log(specificTeamMap);
+		//console.log(specificTeamMap);
 		return specificTeamMap;
 	}
 	catch(e) {
@@ -136,4 +136,32 @@ function getCTFTeamById(id){
 		error['error']="Id not found";
 		return error;
 	}
+}
+
+function isSiteOnline(){
+    /*
+        This function returns
+        boolean data type
+        and check if the website
+        is up or down.
+    */
+    let state=httpGet("https://ctftime.org");
+    if (!state) {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+
+function GetLatestEvent(){
+    /*
+        This function returns
+        the latest event.
+    */
+    let LatsetEventInfo=['title']; // These are the informations we want from the API.
+    let getLastEvent=httpGet("https://ctftime.org/api/v1/events/?limit=5&start="+nowTimeStamp+"");
+    let jsonFormat=JSON.parse((getLastEvent.replace(/<b[^>]*>/g,'')).replace(/<i[^>]*>/g, '__')); // make the json. 
+    let LatestEventMap=informationsAboutCTF(LatsetEventInfo,jsonFormat[4],1,true); // call the function to get the informations about CTF events
+    return LatestEventMap;
 }
